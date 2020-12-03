@@ -2,6 +2,7 @@
 #define XO3_FIELD_H
 
 #include <utility>
+#include <string>
 #include <vector>
 #include <iostream>
 using namespace std;
@@ -81,18 +82,59 @@ public:
         field = res(size);
     }
 
-    Field(vector<vector<int>> a, int b) {
+    Field(vector<vector<int>>& a, int b) {
         size = 19;
         len = 5;
         step = b;
         st = draw;
-        field = std::move(a);
+        field = res(19);
+        for (int k, i = 0; i < 19; ++i) {
+            for (int j = 0; j < 19; ++j) {
+                k = a[i][j];
+                field[i][j] = k;
+            }
+        }
+    }
+
+    explicit Field(string a) {
+        size = 19;
+        len = 5;
+        st = draw;
+        field.reserve(size);
+        for (int ii = 0; ii < 19; ++ii) {
+            field[ii].reserve(19);
+            for (int jj = 0; jj < 19; ++jj) {
+                field[ii][jj] = 0;
+            }
+        }
+        int kk = 0;
+        for (int k = 0; k < 361; ++k) {
+            if (a[k] == '0') {
+                field[k / 19][k % 19] = -1;
+                ++kk;
+            }
+            if (a[k] == 'X') {
+                field[k / 19][k % 19] = 1;
+                ++kk;
+            }
+            if (a[k] == ' ') {
+                field[k / 19][k % 19] = 0;
+            }
+        }
+        step = kk;
     }
 
     ~Field() = default;
 
     vector<vector<int>> getField() {
-        return field;
+        vector<vector<int>> a(size);
+        for (int i = 0; i < size; ++i) {
+            a[i].reserve(size);
+            for (int j = 0; j < size; ++j) {
+                a[i][j] = field[i][j];
+            }
+        }
+        return a;
     }
 
     int get(int i, int j) {
@@ -100,7 +142,7 @@ public:
     }
 
     status predict(int i, int j) {
-        if (step == size) {
+        if (step == size * size) {
             return endGame;
         }
         int c = get(i, j);
@@ -209,7 +251,7 @@ public:
         j = (j + size) % size;
         field[i][j] = (step % 2 == 0 ? 1 : -1);
         ++step;
-        return predict(i, j);
+        return predict2(i, j);
     }
 
     void print() {

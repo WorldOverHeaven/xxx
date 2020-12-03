@@ -9,6 +9,8 @@
 /home/kirill/CLionProjects/XO4/Field.h
 utility
 -
+string
+-
 vector
 -
 iostream
